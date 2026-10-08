@@ -85,6 +85,20 @@ h2 small{font-family:var(--body);font-size:.78rem;color:var(--muted);font-weight
 .card.seen .chk{color:var(--ok);border-color:var(--ok)}
 .empty{color:var(--muted);padding:24px 0;text-align:center}
 
+
+/* Route panel */
+.route{margin-top:12px;border:1px solid var(--line);border-left:4px solid var(--accent);border-radius:10px;background:var(--panel);padding:12px}
+.route h3{margin:0;font-size:.72rem;letter-spacing:.1em;text-transform:uppercase;color:var(--accent);display:flex;justify-content:space-between;align-items:center;gap:8px}
+.route .rule{margin:6px 0 4px;font-size:.82rem;color:var(--fg)}
+.rs{display:grid;grid-template-columns:66px 1fr auto;gap:10px;align-items:center;padding-block:8px;border-top:1px solid var(--line)}
+.rs .tm{font-family:var(--display);font-stretch:condensed;font-weight:800;font-size:1rem;font-variant-numeric:tabular-nums}
+.rs .nm{font-weight:700;font-size:.9rem}
+.rs .ds{font-size:.76rem;color:var(--muted)}
+.rs.now{background:var(--panel2);margin-inline:-12px;padding-inline:12px}
+.rs.now .tm{color:var(--ok)}
+.rs.done{opacity:.45}
+.rs .acts .chk{white-space:nowrap}
+
 /* My list + help */
 .box{margin-top:28px;border:1px solid var(--line);border-radius:10px;padding:14px;background:var(--panel)}
 .box h4{margin:0 0 4px;font-size:1rem}
@@ -109,6 +123,7 @@ details ol{padding-left:20px;margin:10px 0 0;display:grid;gap:6px;color:var(--mu
     <h1>BLINK <span>2026</span> Walker</h1>
     <p class="sub">Oct 8 to 11, 7 to 11 PM. Tap Walk to open walking directions in Google Maps.</p>
     <section class="next" id="next" aria-live="polite"></section>
+    <section class="route" id="route" hidden></section>
   </header>
 
   <div class="bar">
@@ -259,7 +274,7 @@ document.getElementById("zones").addEventListener("click", e => { const b=e.targ
 document.getElementById("types").addEventListener("click", e => { const b=e.target.closest("[data-t]"); if(!b) return; const t=b.dataset.t; types.has(t)?types.delete(t):types.add(t); if(!types.size) TYPES.forEach(x=>types.add(x[0])); render(); });
 document.getElementById("q").addEventListener("input", e => { q=e.target.value; render(); });
 document.getElementById("hideSeen").addEventListener("click", e => { hideSeen=!hideSeen; e.currentTarget.setAttribute("aria-pressed",hideSeen); render(); });
-document.getElementById("out").addEventListener("click", e => { const b=e.target.closest(".chk"); if(!b) return; const k=b.dataset.k; seen[k]?delete seen[k]:seen[k]=1; save(); render(); });
+document.getElementById("out").addEventListener("click", e => { const b=e.target.closest(".chk"); if(!b) return; const k=b.dataset.k; seen[k]?delete seen[k]:seen[k]=1; save(); render(); renderRoute(); });
 
 /* ---------- save / clear ---------- */
 const status = m => document.getElementById("status").textContent = m;
@@ -288,9 +303,38 @@ document.getElementById("clearList").addEventListener("click", e => {
   seen = {}; save(); render(); status("List cleared on this browser.");
 });
 
-renderNext(); render();
+
+/* ---------- route of the day ---------- */
+const ROUTES = {"2026-10-08": {"title": "Thursday route: TQL to Music Hall", "rule": "Hard stop: leave Court St by 10:18 for Music Hall. Running late? Drop 27 and 29 first.", "stops": [{"s": "2026-10-08T19:45:00-04:00", "n": "BLINK Lights On", "d": "Main stage at TQL. Stay put through the drone show.", "k": [], "loc": "TQL Stadium, Cincinnati, OH"}, {"s": "2026-10-08T20:30:00-04:00", "n": "Drone show: First Sight", "d": "Over TQL. At 8:45, head east on W Findlay St.", "k": [], "loc": "TQL Stadium, Cincinnati, OH"}, {"s": "2026-10-08T20:55:00-04:00", "n": "Findlay murals", "d": "2, 3 and 5 Alley Jam at Elm & Findlay. Glance and keep moving.", "k": ["F2", "F3", "F5"], "loc": "Elm St & W Findlay St, Cincinnati, OH"}, {"s": "2026-10-08T21:00:00-04:00", "n": "1 AfterImage", "d": "Projection. Mural 4 on the same corner.", "k": ["F1", "F4"], "loc": "Race St & W Findlay St, Cincinnati, OH"}, {"s": "2026-10-08T21:05:00-04:00", "n": "7 CCAD X Natalia Rak", "d": "Projection. Mural 8 on the same corner.", "k": ["F7", "F8"], "loc": "Race St & W Elder St, Cincinnati, OH"}, {"s": "2026-10-08T21:10:00-04:00", "n": "6 Light Ship", "d": "Light. Murals 10 and 11 here.", "k": ["F6", "F10", "F11"], "loc": "Elm St & W Elder St, Cincinnati, OH"}, {"s": "2026-10-08T21:15:00-04:00", "n": "12 In-Can-Descent", "d": "Light.", "k": ["F12"], "loc": "Elm St & W Liberty St, Cincinnati, OH"}, {"s": "2026-10-08T21:20:00-04:00", "n": "14 Desiderium + 18 Insane 51", "d": "Two projections on one corner, plus 19 Jacob's Wall and mural 13.", "k": ["F14", "O18", "O19", "F13"], "loc": "Race St & W Liberty St, Cincinnati, OH"}, {"s": "2026-10-08T21:35:00-04:00", "n": "25 Imagine / Awaken the Art", "d": "Projection. Walk Race St down the side of Washington Park.", "k": ["O25"], "loc": "Race St & W 12th St, Cincinnati, OH"}, {"s": "2026-10-08T21:40:00-04:00", "n": "27 The American Building", "d": "Projection.", "k": ["O27"], "loc": "Walnut St & E Central Pkwy, Cincinnati, OH"}, {"s": "2026-10-08T21:45:00-04:00", "n": "29 Concrete Code", "d": "Projection.", "k": ["D29"], "loc": "Vine St & Central Pkwy, Cincinnati, OH"}, {"s": "2026-10-08T21:50:00-04:00", "n": "33 muon : bloom + 32 Geist", "d": "Projection at Vine & Court, light one block west at Race.", "k": ["D33", "D32"], "loc": "Vine St & Court St, Cincinnati, OH"}, {"s": "2026-10-08T22:00:00-04:00", "n": "31 Live Projection Experience", "d": "Interactive show 10:00 to 10:15. Be there by 9:58.", "k": ["D31"], "loc": "924 Race St, Cincinnati, OH"}, {"s": "2026-10-08T22:15:00-04:00", "n": "30 Commonality", "d": "Projection, half a block west on Court. Then straight up Elm.", "k": ["D30"], "loc": "Commons Mural, 109 W Court St, Cincinnati, OH"}, {"s": "2026-10-08T22:30:00-04:00", "n": "21 Music Hall Experience", "d": "Brett Bolton and Showgirl, 10:30 to 10:45. The 8:30 show clashes with the drones, so this is the one.", "k": ["O21"], "loc": "Music Hall, 1241 Elm St, Cincinnati, OH"}, {"s": "2026-10-08T22:45:00-04:00", "n": "Washington Park lights", "d": "24 Blinkatorium, then 23 Threaded Light at Vine & 14th and 20 Welcome In at Vine & 15th. Lights out at 11.", "k": ["O24", "O23", "O20"], "loc": "Washington Park, 1230 Elm St, Cincinnati, OH"}]}};
+let routeOpen = true;
+try { routeOpen = localStorage.getItem("blink26route") !== "0"; } catch(e) {}
+function renderRoute(){
+  const el = document.getElementById("route"), now = new Date(), r = ROUTES[dayKey(now)];
+  if (!r) { el.hidden = true; return; }
+  el.hidden = false;
+  const st = r.stops.map(s => ({...s, S:new Date(s.s)}));
+  let cur = -1; st.forEach((s,i) => { if (s.S <= now) cur = i; });
+  const head = `<h3>${esc(r.title)}<button class="lnk" id="tRoute" aria-expanded="${routeOpen}">${routeOpen?"Hide":"Show"}</button></h3>`;
+  if (!routeOpen) { el.innerHTML = head; return; }
+  el.innerHTML = head + `<p class="rule">${esc(r.rule)}</p>` + st.map((s,i) => {
+    const all = s.k.length && s.k.every(k => seen[k]);
+    const cls = i===cur ? " now" : (all ? " done" : "");
+    const btn = s.k.length ? `<button class="chk" data-rk="${s.k.join(",")}">${all?"Seen ✓":"Seen"}</button>` : "";
+    return `<div class="rs${cls}"><div class="tm">${fmt(s.S)}</div><div class="bd"><div class="nm">${esc(s.n)}</div><div class="ds">${esc(s.d)}</div></div><div class="acts"><a class="go" href="${walk(s.loc)}" target="_blank" rel="noopener">Walk</a>${btn}</div></div>`;
+  }).join("");
+}
+document.getElementById("route").addEventListener("click", e => {
+  if (e.target.id==="tRoute") { routeOpen=!routeOpen; try{localStorage.setItem("blink26route",routeOpen?"1":"0")}catch(_){} renderRoute(); return; }
+  const b = e.target.closest("[data-rk]"); if (!b) return;
+  const ks = b.dataset.rk.split(","), all = ks.every(k=>seen[k]);
+  ks.forEach(k => { if (all) delete seen[k]; else seen[k]=1; });
+  save(); render(); renderRoute();
+});
+
+renderNext(); render(); renderRoute();
+setInterval(renderRoute, 60000);
 setInterval(renderNext, 60000);
-document.addEventListener("visibilitychange", () => { if (!document.hidden) renderNext(); });
+document.addEventListener("visibilitychange", () => { if (!document.hidden) { renderNext(); renderRoute(); } });
 </script>
 </body>
 </html>
