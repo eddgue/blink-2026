@@ -1,0 +1,177 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="description" content="All 93 BLINK 2026 Cincinnati installations by zone with one-tap walking directions in Google Maps.">
+<meta name="theme-color" content="#141218">
+<title>BLINK 2026 Walker</title>
+<style>*,*::before,*::after{box-sizing:border-box}body{margin:0}:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}[hidden]{display:none!important}</style>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@700;900&family=Figtree:wght@400;500;600;700&display=swap">
+<style>
+/* Layout: one-column night-walk tool. Sticky zone + filter bar, cards that hand off to Google Maps. Single dark look on purpose: used outdoors at night. */
+:root{
+  color-scheme:dark;
+  --bg:#141218; --panel:#1E1B24; --line:#322D3B; --fg:#F3EEF6; --muted:#A79FB2;
+  --accent:#F04E64;
+  --proj:#B44AA8; --mural:#2F8FE0; --light:#8DC63F; --attr:#F6C623; --oasis:#C9C3D1; --merch:#F3EEF6;
+  --zF:#F0705A; --zO:#E8465A; --zD:#4A6FD0; --zB:#19B3A6; --zV:#6EC6F0; --zR:#F6C623;
+  --display:"Big Shoulders Display",Impact,"Arial Narrow",sans-serif;
+  --body:"Figtree",system-ui,-apple-system,"Segoe UI",sans-serif;
+}
+body{background:var(--bg);color:var(--fg);font-family:var(--body);font-size:15px;line-height:1.4}
+.wrap{max-width:640px;margin:0 auto;padding-inline:16px;padding-block:0 48px}
+header{padding-block:20px 8px}
+h1{font-family:var(--display);font-weight:900;font-size:2.6rem;line-height:.95;letter-spacing:.01em;margin:0;text-transform:uppercase;text-wrap:balance}
+h1 span{color:var(--accent)}
+.sub{color:var(--muted);margin:6px 0 0;font-size:.9rem}
+.tonight{margin-top:14px;border:1px solid var(--line);border-left:4px solid var(--attr);border-radius:8px;padding:10px 12px;background:var(--panel);font-size:.9rem}
+.tonight b{font-weight:700}
+.tonight a{color:var(--attr)}
+.bar{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--bg);padding-block:10px;display:grid;gap:8px;border-bottom:1px solid var(--line)}
+.zones,.types{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;padding-bottom:2px}
+.zones::-webkit-scrollbar,.types::-webkit-scrollbar{display:none}
+button{font:inherit;color:inherit}
+.zbtn{flex:0 0 auto;border:1px solid var(--line);background:var(--panel);border-radius:999px;padding:7px 12px;font-weight:600;font-size:.85rem;cursor:pointer;display:flex;align-items:center;gap:6px}
+.zbtn i{width:9px;height:9px;border-radius:50%;background:var(--c)}
+.zbtn small{color:var(--muted);font-weight:500;font-variant-numeric:tabular-nums}
+.zbtn[aria-pressed="true"]{background:var(--fg);color:var(--bg);border-color:var(--fg)}
+.zbtn[aria-pressed="true"] small{color:var(--bg);opacity:.7}
+.tbtn{flex:0 0 auto;border:1px solid var(--line);background:transparent;border-radius:6px;padding:5px 9px;font-size:.8rem;cursor:pointer;display:flex;align-items:center;gap:5px}
+.tbtn i{width:8px;height:8px;border-radius:2px;background:var(--c)}
+.tbtn[aria-pressed="false"]{opacity:.4}
+.row{display:flex;gap:8px;align-items:center}
+input[type=search]{flex:1;min-width:0;background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:9px 11px;color:var(--fg);font:inherit;font-size:16px}
+.hide{flex:0 0 auto;border:1px solid var(--line);background:var(--panel);border-radius:8px;padding:9px 10px;font-size:.8rem;cursor:pointer;white-space:nowrap}
+.hide[aria-pressed="true"]{border-color:var(--accent);color:var(--accent)}
+:focus-visible{outline:2px solid var(--attr);outline-offset:2px}
+h2{font-family:var(--display);font-weight:700;font-size:1.5rem;text-transform:uppercase;letter-spacing:.03em;margin:22px 0 8px;display:flex;align-items:baseline;gap:10px}
+h2 i{width:12px;height:12px;border-radius:3px;background:var(--c);flex:0 0 auto;align-self:center}
+h2 small{font-family:var(--body);font-size:.78rem;color:var(--muted);font-weight:500;letter-spacing:0;text-transform:none}
+.list{display:grid;gap:6px}
+.card{display:grid;grid-template-columns:auto 1fr auto;gap:10px;align-items:center;background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:10px}
+.card.seen{opacity:.45}
+.num{width:34px;height:34px;border-radius:8px;display:grid;place-items:center;font-family:var(--display);font-weight:900;font-size:1.1rem;background:var(--c);color:#141218;font-variant-numeric:tabular-nums}
+.txt{min-width:0}
+.t{font-weight:700;font-size:.95rem}
+.a{color:var(--muted);font-size:.8rem;margin-top:1px}
+.l{font-size:.76rem;margin-top:3px;color:var(--muted);display:flex;gap:4px;align-items:center}
+.l b{color:var(--c);font-weight:600;font-size:.7rem;text-transform:uppercase;letter-spacing:.06em}
+.acts{display:flex;flex-direction:column;gap:5px;align-items:stretch}
+.go{background:var(--accent);color:#fff;text-decoration:none;font-weight:700;font-size:.8rem;padding:7px 10px;border-radius:7px;text-align:center}
+.chk{border:1px solid var(--line);background:transparent;border-radius:7px;padding:5px 8px;font-size:.75rem;cursor:pointer;color:var(--muted)}
+.card.seen .chk{color:var(--light);border-color:var(--light)}
+.empty{color:var(--muted);padding:24px 0;text-align:center}
+details{margin-top:28px;border:1px solid var(--line);border-radius:10px;padding:12px 14px;background:var(--panel)}
+summary{font-weight:700;cursor:pointer}
+details ol{padding-left:20px;margin:10px 0 0;display:grid;gap:6px;color:var(--muted);font-size:.88rem}
+.foot{color:var(--muted);font-size:.78rem;margin-top:16px}
+@media (prefers-reduced-motion:no-preference){.card{transition:opacity .2s}}
+</style>
+
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>BLINK <span>2026</span> Walker</h1>
+    <p class="sub">Oct 8 to 11, 7 to 11 PM. Tap Walk to open walking directions in Google Maps.</p>
+    <div class="tonight" id="tonight"></div>
+  </header>
+
+  <div class="bar">
+    <div class="zones" id="zones" role="group" aria-label="Zone"></div>
+    <div class="types" id="types" role="group" aria-label="Type"></div>
+    <div class="row">
+      <input type="search" id="q" placeholder="Search art, artist or street" aria-label="Search">
+      <button class="hide" id="hideSeen" aria-pressed="false">Hide seen</button>
+    </div>
+  </div>
+
+  <main id="out"></main>
+
+  <details>
+    <summary>Put every pin on your Google Map</summary>
+    <ol>
+      <li><a href="blink-2026-pins.csv" download style="color:var(--attr)">Download blink-2026-pins.csv</a></li>
+      <li>On a laptop, open google.com/mymaps and tap Create a new map.</li>
+      <li>Click Import, upload the CSV. For position, pick the Address column. For the title, pick Name.</li>
+      <li>Under the layer, set Style by Zone or Type to color the pins.</li>
+      <li>On your phone, open Google Maps, go to You (or Saved), then Maps. The BLINK map shows over your live location.</li>
+    </ol>
+  </details>
+  <p class="foot">Pins use the nearest intersection or venue from the official BLINK zone maps, so expect to look around once you arrive. Seen marks stay on this phone only.</p>
+</div>
+
+<script>
+const DATA = [{"zone": "F", "zname": "Findlay Market", "n": 1, "title": "AfterImage", "artist": "Kyle Eli Ebersole", "type": "Projection", "loc": "Race St & W Findlay St, Cincinnati, OH"}, {"zone": "F", "zname": "Findlay Market", "n": 2, "title": "Mural", "artist": "Medianeras", "type": "Mural", "loc": "Elm St & W Findlay St, Cincinnati, OH"}, {"zone": "F", "zname": "Findlay Market", "n": 3, "title": "Mural", "artist": "Dulk", "type": "Mural", "loc": "Elm St & W Findlay St, Cincinnati, OH"}, {"zone": "F", "zname": "Findlay Market", "n": 4, "title": "Mural", "artist": "Sofles", "type": "Mural", "loc": "Race St & W Findlay St, Cincinnati, OH"}, {"zone": "F", "zname": "Findlay Market", "n": 5, "title": "Alley Jam Mural Series", "artist": "Multiple artists", "type": "Mural", "loc": "Elm St & W Findlay St, Cincinnati, OH"}, {"zone": "F", "zname": "Findlay Market", "n": 6, "title": "Light Ship", "artist": "Lawrence Malott FOREALISM", "type": "Light", "loc": "Elm St & W Elder St, Cincinnati, OH"}, {"zone": "F", "zname": "Findlay Market", "n": 7, "title": "CCAD X Natalia Rak", "artist": "Columbus College of Art & Design", "type": "Projection", "loc": "Race St & W Elder St, Cincinnati, OH"}, {"zone": "F", "zname": "Findlay Market", "n": 8, "title": "Mural", "artist": "Jim Tucker, Frank Young", "type": "Mural", "loc": "Race St & W Elder St, Cincinnati, OH"}, {"zone": "F", "zname": "Findlay Market", "n": 9, "title": "Mural", "artist": "Max Sansing", "type": "Mural", "loc": "Vine St & W Elder St, Cincinnati, OH"}, {"zone": "F", "zname": "Findlay Market", "n": 10, "title": "Mural", "artist": "Mariela Ajras", "type": "Mural", "loc": "Elm St & W Elder St, Cincinnati, OH"}, {"zone": "F", "zname": "Findlay Market", "n": 11, "title": "Mural", "artist": "Pastel", "type": "Mural", "loc": "Elm St & W Elder St, Cincinnati, OH"}, {"zone": "F", "zname": "Findlay Market", "n": 12, "title": "In-Can-Descent", "artist": "Keep Cincinnati Beautiful", "type": "Light", "loc": "Elm St & W Liberty St, Cincinnati, OH"}, {"zone": "F", "zname": "Findlay Market", "n": 13, "title": "Mural", "artist": "James Bullough", "type": "Mural", "loc": "Race St & W Liberty St, Cincinnati, OH"}, {"zone": "F", "zname": "Findlay Market", "n": 14, "title": "Desiderium", "artist": "Liv Cassinelli", "type": "Projection", "loc": "Race St & W Liberty St, Cincinnati, OH"}, {"zone": "F", "zname": "Findlay Market", "n": 15, "title": "Mural", "artist": "Drew Merritt", "type": "Mural", "loc": "Race St & W Elder St, Cincinnati, OH"}, {"zone": "O", "zname": "OTR", "n": 16, "title": "Cincinnati Skatepark Activation", "artist": "", "type": "Attraction", "loc": "Elm St & W Liberty St, Cincinnati, OH"}, {"zone": "O", "zname": "OTR", "n": 17, "title": "Monster Energy Activation", "artist": "Monster Energy", "type": "Attraction", "loc": "Elm St & W Liberty St, Cincinnati, OH"}, {"zone": "O", "zname": "OTR", "n": 18, "title": "Insane 51 Mural, Illuminated", "artist": "4Wall Entertainment", "type": "Projection", "loc": "Race St & W Liberty St, Cincinnati, OH"}, {"zone": "O", "zname": "OTR", "n": 19, "title": "Jacob's Wall", "artist": "Parker Heyl", "type": "Light", "loc": "Race St & W Liberty St, Cincinnati, OH"}, {"zone": "O", "zname": "OTR", "n": 20, "title": "Welcome In", "artist": "Xavier University Art Department", "type": "Light", "loc": "Vine St & E 15th St, Cincinnati, OH"}, {"zone": "O", "zname": "OTR", "n": 21, "title": "Music Hall Experience", "artist": "Jonas Denzel, Brett Bolton, Silent Partners Studio, Strangeloop. Shows 8:30 & 10:30 nightly", "type": "Projection", "loc": "Music Hall, 1241 Elm St, Cincinnati, OH"}, {"zone": "O", "zname": "OTR", "n": 22, "title": "Oasis Station: Music Hall", "artist": "Indoor restrooms", "type": "Oasis", "loc": "Music Hall, 1241 Elm St, Cincinnati, OH"}, {"zone": "O", "zname": "OTR", "n": 23, "title": "Threaded Light", "artist": "Sew Valley", "type": "Light", "loc": "Vine St & E 14th St, Cincinnati, OH"}, {"zone": "O", "zname": "OTR", "n": 24, "title": "The Blinkatorium", "artist": "Scott Pennington", "type": "Light", "loc": "Washington Park, 1230 Elm St, Cincinnati, OH"}, {"zone": "O", "zname": "OTR", "n": 25, "title": "Imagine / Awaken the Art", "artist": "Onda Studio; Giovanni Weissman (SCPA)", "type": "Projection", "loc": "Race St & W 12th St, Cincinnati, OH"}, {"zone": "O", "zname": "OTR", "n": 26, "title": "Polka-DOTober", "artist": "Art Academy", "type": "Attraction", "loc": "Art Academy of Cincinnati, 1212 Jackson St, Cincinnati, OH"}, {"zone": "O", "zname": "OTR", "n": 27, "title": "The American Building Experience", "artist": "Susan Kosti, Filip Roca, Daniel Rossa", "type": "Projection", "loc": "Walnut St & E Central Pkwy, Cincinnati, OH"}, {"zone": "O", "zname": "OTR", "n": 28, "title": "Oasis Station: The Children's Theatre", "artist": "Indoor restrooms", "type": "Oasis", "loc": "Walnut St & E Central Pkwy, Cincinnati, OH"}, {"zone": "D", "zname": "Fountain", "n": 29, "title": "Concrete Code", "artist": "Derek Abbott", "type": "Projection", "loc": "Vine St & Central Pkwy, Cincinnati, OH"}, {"zone": "D", "zname": "Fountain", "n": 30, "title": "Commonality", "artist": "Chris Glenn, Bern Iseli, Josh Hill, Zach Parker, Chaske Haverkos, 1001 Colors", "type": "Projection", "loc": "Elm St & W Court St, Cincinnati, OH"}, {"zone": "D", "zname": "Fountain", "n": 31, "title": "Live Projection Experience", "artist": "Spencer Sterling, Structurals", "type": "Projection", "loc": "Race St & W Court St, Cincinnati, OH"}, {"zone": "D", "zname": "Fountain", "n": 32, "title": "Geist", "artist": "This is Loop", "type": "Light", "loc": "Race St & W Court St, Cincinnati, OH"}, {"zone": "D", "zname": "Fountain", "n": 33, "title": "muon : bloom", "artist": "Christo Squier", "type": "Projection", "loc": "Vine St & Court St, Cincinnati, OH"}, {"zone": "D", "zname": "Fountain", "n": 34, "title": "Asianati Night Market", "artist": "Asianati", "type": "Attraction", "loc": "Vine St & Court St, Cincinnati, OH"}, {"zone": "D", "zname": "Fountain", "n": 35, "title": "Oasis Station: Public Library", "artist": "Indoor restrooms", "type": "Oasis", "loc": "Main Library, 800 Vine St, Cincinnati, OH"}, {"zone": "D", "zname": "Fountain", "n": 36, "title": "Resonance", "artist": "Smash Studio", "type": "Projection", "loc": "Walnut St & E 9th St, Cincinnati, OH"}, {"zone": "D", "zname": "Fountain", "n": 37, "title": "Covenant-First Presbyterian Church Experience", "artist": "Felix Frank, Ana Tomashvili, Mindscape Studios", "type": "Projection", "loc": "Covenant-First Presbyterian Church, 717 Elm St, Cincinnati, OH"}, {"zone": "D", "zname": "Fountain", "n": 38, "title": "4Wall Entertainment", "artist": "4Wall lighting", "type": "Projection", "loc": "Elm St & Garfield Pl, Cincinnati, OH"}, {"zone": "D", "zname": "Fountain", "n": 39, "title": "Psychedelic Car Wash", "artist": "Radius Concepts", "type": "Light", "loc": "Piatt Park, Garfield Pl, Cincinnati, OH"}, {"zone": "D", "zname": "Fountain", "n": 40, "title": "In Light of Us", "artist": "The Mz. Icar Collective", "type": "Light", "loc": "Vine St & W 8th St, Cincinnati, OH"}, {"zone": "D", "zname": "Fountain", "n": 41, "title": "The Letter from Martha", "artist": "DecideKit", "type": "Projection", "loc": "Vine St & E 8th St, Cincinnati, OH"}, {"zone": "D", "zname": "Fountain", "n": 42, "title": "A Century of \"yes\"", "artist": "Greg D'Amico", "type": "Projection", "loc": "Walnut St & E 7th St, Cincinnati, OH"}, {"zone": "D", "zname": "Fountain", "n": 43, "title": "Oasis Station: Aronoff Center", "artist": "Indoor restrooms", "type": "Oasis", "loc": "Aronoff Center, 650 Walnut St, Cincinnati, OH"}, {"zone": "D", "zname": "Fountain", "n": 44, "title": "Oasis Station: Contemporary Arts Center", "artist": "Indoor restrooms", "type": "Oasis", "loc": "Contemporary Arts Center, 44 E 6th St, Cincinnati, OH"}, {"zone": "D", "zname": "Fountain", "n": 45, "title": "Official BLINK Merch Shop", "artist": "At the Contemporary Arts Center", "type": "Merch", "loc": "Contemporary Arts Center, 44 E 6th St, Cincinnati, OH"}, {"zone": "D", "zname": "Fountain", "n": 46, "title": "Tristan Eaton", "artist": "UC CCM Lighting Design & Technology", "type": "Projection", "loc": "Elm St & W 6th St, Cincinnati, OH"}, {"zone": "D", "zname": "Fountain", "n": 47, "title": "Funk Glasses", "artist": "Black Art Speaks, Michael A. Coppage, Chris Glenn", "type": "Light", "loc": "Elm St & W 6th St, Cincinnati, OH"}, {"zone": "D", "zname": "Fountain", "n": 48, "title": "String Theory for Dummies 2.0", "artist": "Dan Shields", "type": "Light", "loc": "Elm St & W 6th St, Cincinnati, OH"}, {"zone": "D", "zname": "Fountain", "n": 49, "title": "Corner Mapping Experience", "artist": "Chaske Haverkos, Ke Jyun Wu", "type": "Projection", "loc": "Vine St & W 6th St, Cincinnati, OH"}, {"zone": "D", "zname": "Fountain", "n": 50, "title": "Reality, Theory, and Everything in Between", "artist": "Justin Boh", "type": "Projection", "loc": "Walnut St & E 6th St, Cincinnati, OH"}, {"zone": "D", "zname": "Fountain", "n": 51, "title": "Canvas", "artist": "Fifth Third Bank, Big Art, Precision Studios, Michael Thompson", "type": "Light", "loc": "Fountain Square, Cincinnati, OH"}, {"zone": "D", "zname": "Fountain", "n": 52, "title": "Light Falls", "artist": "VIGAS", "type": "Light", "loc": "Vine St & W 4th St, Cincinnati, OH"}, {"zone": "D", "zname": "Fountain", "n": 53, "title": "Charley & Edie Harper Exhibit", "artist": "At the Mercantile. Reservations required", "type": "Attraction", "loc": "Mercantile Library, 414 Walnut St, Cincinnati, OH"}, {"zone": "D", "zname": "Fountain", "n": 54, "title": "Third St Experience", "artist": "The Great Paper Massacre, Vince Fraser, Kasumi", "type": "Projection", "loc": "Race St & W 3rd St, Cincinnati, OH"}, {"zone": "D", "zname": "Fountain", "n": 55, "title": "Iceberg Trail", "artist": "LeMonde Studio", "type": "Light", "loc": "Lytle Park, Cincinnati, OH"}, {"zone": "D", "zname": "Fountain", "n": 56, "title": "Crescendo", "artist": "Kyle Eli Ebersole, Ian Molitors", "type": "Light", "loc": "Lytle Park, Cincinnati, OH"}, {"zone": "D", "zname": "Fountain", "n": 57, "title": "Allium", "artist": "Everything Good Studio", "type": "Light", "loc": "Lytle Park, Cincinnati, OH"}, {"zone": "D", "zname": "Fountain", "n": 58, "title": "Mycelium Network", "artist": "Custom Fibre Optics Ltd", "type": "Light", "loc": "Lytle Park, Cincinnati, OH"}, {"zone": "B", "zname": "The Banks", "n": 59, "title": "The Hive", "artist": "Beamhacker", "type": "Light", "loc": "Vine St & E 2nd St, Cincinnati, OH"}, {"zone": "B", "zname": "The Banks", "n": 60, "title": "The B!G TV", "artist": "B!gArt", "type": "Light", "loc": "National Underground Railroad Freedom Center, Cincinnati, OH"}, {"zone": "B", "zname": "The Banks", "n": 61, "title": "Millennial Pink", "artist": "Mike Stasny", "type": "Light", "loc": "Walnut St & Freedom Way, Cincinnati, OH"}, {"zone": "B", "zname": "The Banks", "n": 62, "title": "Voyage to Atlantis Fashion Show", "artist": "Asha AMA", "type": "Attraction", "loc": "Cincinnati Black Music Walk of Fame, Cincinnati, OH"}, {"zone": "B", "zname": "The Banks", "n": 63, "title": "BLINK Sculpture", "artist": "", "type": "Light", "loc": "Race St & Freedom Way, Cincinnati, OH"}, {"zone": "B", "zname": "The Banks", "n": 64, "title": "Maestro", "artist": "LeMonde Studio", "type": "Light", "loc": "Smale Riverfront Park, Cincinnati, OH"}, {"zone": "B", "zname": "The Banks", "n": 65, "title": "Y.e.l.l.e.d", "artist": "Kemper Sauce Studios", "type": "Light", "loc": "Smale Riverfront Park, Cincinnati, OH"}, {"zone": "B", "zname": "The Banks", "n": 66, "title": "Future Cities No. 1, 2, and 3", "artist": "Cedric Michael Cox, Studio 181, Brent Keltch", "type": "Light", "loc": "Main St & Freedom Way, Cincinnati, OH"}, {"zone": "B", "zname": "The Banks", "n": 67, "title": "Drone Show Viewing Area", "artist": "Shows Fri, Sat, Sun at 8 & 10 PM", "type": "Attraction", "loc": "Smale Riverfront Park, Cincinnati, OH"}, {"zone": "B", "zname": "The Banks", "n": 68, "title": "FloWeR PoWeR", "artist": "Aérosculpture", "type": "Light", "loc": "Smale Riverfront Park, Cincinnati, OH"}, {"zone": "B", "zname": "The Banks", "n": 69, "title": "Dreamscape", "artist": "Lindsay Glatz, William Nemitoff", "type": "Light", "loc": "Smale Riverfront Park, Cincinnati, OH"}, {"zone": "B", "zname": "The Banks", "n": 70, "title": "Skate Downtown Cincy", "artist": "Roller skaters", "type": "Attraction", "loc": "John A. Roebling Suspension Bridge, Cincinnati, OH"}, {"zone": "B", "zname": "The Banks", "n": 71, "title": "Interlace", "artist": "Looking Up Arts", "type": "Light", "loc": "Walnut St & Mehring Way, Cincinnati, OH"}, {"zone": "B", "zname": "The Banks", "n": 72, "title": "Spiral Bound", "artist": "JP Jackson, Brian Havener", "type": "Light", "loc": "Main St & Mehring Way, Cincinnati, OH"}, {"zone": "V", "zname": "Covington", "n": 67, "title": "Drone Show Viewing Area", "artist": "Covington Landing. Shows Fri, Sat, Sun at 8 & 10 PM", "type": "Attraction", "loc": "Covington Plaza, Riverside Dr, Covington, KY"}, {"zone": "V", "zname": "Covington", "n": 73, "title": "OneNKY Center Lighting", "artist": "4Wall Entertainment", "type": "Projection", "loc": "OneNKY Center, Covington, KY"}, {"zone": "V", "zname": "Covington", "n": 74, "title": "The Glow Pavilion", "artist": "dEcORa", "type": "Attraction", "loc": "Scott Blvd & E 3rd St, Covington, KY"}, {"zone": "V", "zname": "Covington", "n": 75, "title": "SomniUs", "artist": "illumaphonium", "type": "Light", "loc": "Greenup St & E 3rd St, Covington, KY"}, {"zone": "V", "zname": "Covington", "n": 76, "title": "Mural", "artist": "Gera 1", "type": "Mural", "loc": "Scott Blvd & E 4th St, Covington, KY"}, {"zone": "V", "zname": "Covington", "n": 77, "title": "Irene & Pluto", "artist": "SnellBeast", "type": "Projection", "loc": "Scott Blvd & E 4th St, Covington, KY"}, {"zone": "V", "zname": "Covington", "n": 78, "title": "Mural", "artist": "Wayne Horse", "type": "Mural", "loc": "Greenup St & E 4th St, Covington, KY"}, {"zone": "V", "zname": "Covington", "n": 79, "title": "L1ght Graff1t1 Make0vers", "artist": "0H10M1ke", "type": "Light", "loc": "Greenup St & E 4th St, Covington, KY"}, {"zone": "V", "zname": "Covington", "n": 80, "title": "Kinetic Perspective", "artist": "Juan Fuentes", "type": "Light", "loc": "Madison Ave & 5th St, Covington, KY"}, {"zone": "V", "zname": "Covington", "n": 81, "title": "Tobacco Alley Mural Series", "artist": "10 artists", "type": "Mural", "loc": "Scott Blvd & E 4th St, Covington, KY"}, {"zone": "V", "zname": "Covington", "n": 82, "title": "Light Lane", "artist": "LeMonde Studio", "type": "Light", "loc": "Madison Ave & 5th St, Covington, KY"}, {"zone": "V", "zname": "Covington", "n": 83, "title": "Mural", "artist": "Polina Soloveichik", "type": "Mural", "loc": "Scott Blvd & E 5th St, Covington, KY"}, {"zone": "V", "zname": "Covington", "n": 84, "title": "Connected", "artist": "Koros Design", "type": "Light", "loc": "Scott Blvd & E 6th St, Covington, KY"}, {"zone": "V", "zname": "Covington", "n": 85, "title": "Mother of God Church Experience", "artist": "Leslie Epsztein, Jérémie Bellot, Jérémy Oury", "type": "Projection", "loc": "Mother of God Church, 119 W 6th St, Covington, KY"}, {"zone": "V", "zname": "Covington", "n": 86, "title": "Beyond the Bridge", "artist": "Northern Kentucky University", "type": "Light", "loc": "Washington St & W 6th St, Covington, KY"}, {"zone": "V", "zname": "Covington", "n": 87, "title": "Mural", "artist": "Elléna Lourens", "type": "Mural", "loc": "Madison Ave & 6th St, Covington, KY"}, {"zone": "V", "zname": "Covington", "n": 88, "title": "Every Little Thing", "artist": "Inka Kendzia", "type": "Projection", "loc": "Madison Ave & 6th St, Covington, KY"}, {"zone": "V", "zname": "Covington", "n": 89, "title": "Mural", "artist": "Chase Melendez", "type": "Mural", "loc": "Scott Blvd & E 6th St, Covington, KY"}, {"zone": "V", "zname": "Covington", "n": 90, "title": "Lumifolia", "artist": "Jessica Wolf, Paper Acorn", "type": "Light", "loc": "Pike St & Washington St, Covington, KY"}, {"zone": "V", "zname": "Covington", "n": 91, "title": "The Flipside", "artist": "Sean Van Praag", "type": "Projection", "loc": "Madison Ave & Pike St, Covington, KY"}, {"zone": "V", "zname": "Covington", "n": 92, "title": "Masquerade", "artist": "Vamos Animation", "type": "Projection", "loc": "Madison Ave & Pike St, Covington, KY"}, {"zone": "V", "zname": "Covington", "n": 93, "title": "Madison Theater: Once and Future", "artist": "Miami University", "type": "Projection", "loc": "Madison Theater, 730 Madison Ave, Covington, KY"}, {"zone": "R", "zname": "Opening Ceremony", "n": 1, "title": "Opening Ceremony on Central Pkwy", "artist": "Thu Oct 8, 4 to 9 PM. Drone show 8:30 PM. 47 food, drink, art and sponsor stops between Liberty St and 14th St", "type": "Attraction", "loc": "Central Pkwy & W 15th St, Cincinnati, OH"}, {"zone": "R", "zname": "Opening Ceremony", "n": 2, "title": "Stage at TQL Stadium", "artist": "Opening ceremony performances", "type": "Attraction", "loc": "TQL Stadium, Cincinnati, OH"}];
+const ZONES = [["all","All",null],["R","Opening","--zR"],["F","Findlay Market","--zF"],["O","OTR","--zO"],["D","Fountain","--zD"],["B","The Banks","--zB"],["V","Covington","--zV"]];
+const TYPES = [["Projection","--proj"],["Mural","--mural"],["Light","--light"],["Attraction","--attr"],["Oasis","--oasis"],["Merch","--merch"]];
+const tcol = Object.fromEntries(TYPES);
+const zcol = Object.fromEntries(ZONES.map(z=>[z[0],z[2]]));
+const key = r => r.zone + r.n;
+let seen = {};
+try { seen = JSON.parse(localStorage.getItem("blink26seen") || "{}"); } catch(e) {}
+const save = () => { try { localStorage.setItem("blink26seen", JSON.stringify(seen)); } catch(e) {} };
+let zone = "all", q = "", hideSeen = false, types = new Set(TYPES.map(t=>t[0]));
+
+function tonight(){
+  const d = new Date(), day = d.getDate(), m = d.getMonth(), y = d.getFullYear();
+  const el = document.getElementById("tonight");
+  if (y === 2026 && m === 9 && day === 8) {
+    el.innerHTML = "<b>Tonight:</b> Opening ceremony on Central Pkwy, 4 to 9 PM, drone show 8:30 PM. Zones light up 7 to 11 PM. Music Hall projections 8:30 and 10:30.";
+  } else if (y === 2026 && m === 9 && day >= 9 && day <= 11) {
+    el.innerHTML = "<b>Tonight:</b> Zones 7 to 11 PM. Drone shows 8 and 10 PM over the river, view from Smale Park or Covington Landing. Music Hall projections 8:30 and 10:30.";
+  } else {
+    el.innerHTML = "<b>Schedule:</b> Opening Thu Oct 8 on Central Pkwy, 4 to 9 PM. Zones 7 to 11 PM nightly. Drone shows Fri to Sun, 8 and 10 PM.";
+  }
+}
+
+function chips(){
+  const zEl = document.getElementById("zones");
+  zEl.innerHTML = ZONES.map(([k,n,c]) => {
+    const rs = k==="all" ? DATA : DATA.filter(r=>r.zone===k);
+    const done = rs.filter(r=>seen[key(r)]).length;
+    return `<button class="zbtn" data-z="${k}" aria-pressed="${zone===k}" style="${c?`--c:var(${c})`:""}">${c?"<i></i>":""}${n} <small>${done}/${rs.length}</small></button>`;
+  }).join("");
+  const tEl = document.getElementById("types");
+  tEl.innerHTML = TYPES.map(([t,c]) => `<button class="tbtn" data-t="${t}" aria-pressed="${types.has(t)}" style="--c:var(${c})"><i></i>${t}</button>`).join("");
+}
+
+function esc(s){return String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));}
+function url(r){return "https://www.google.com/maps/dir/?api=1&travelmode=walking&destination=" + encodeURIComponent(r.loc);}
+
+function render(){
+  chips();
+  const ql = q.trim().toLowerCase();
+  const rs = DATA.filter(r =>
+    (zone==="all" || r.zone===zone) && types.has(r.type) &&
+    (!hideSeen || !seen[key(r)]) &&
+    (!ql || (r.title+" "+r.artist+" "+r.loc+" "+r.n).toLowerCase().includes(ql)));
+  const out = document.getElementById("out");
+  if (!rs.length) { out.innerHTML = '<p class="empty">Nothing matches. Clear the search or turn a type back on.</p>'; return; }
+  const groups = ZONES.slice(1).map(z => [z, rs.filter(r=>r.zone===z[0])]).filter(g=>g[1].length);
+  out.innerHTML = groups.map(([[k,n,c],items]) => `
+    <h2 style="--c:var(${c})"><i></i>${n}<small>${items.length} stop${items.length>1?"s":""}</small></h2>
+    <div class="list">${items.map(r => {
+      const s = !!seen[key(r)], short = r.loc.replace(/, (Cincinnati, OH|Covington, KY)$/,"");
+      return `<div class="card${s?" seen":""}" style="--c:var(${tcol[r.type]})">
+        <div class="num">${k==="R"?"★":r.n}</div>
+        <div class="txt"><div class="t">${esc(r.title)}</div>${r.artist?`<div class="a">${esc(r.artist)}</div>`:""}
+          <div class="l"><b>${r.type}</b> · ${esc(short)}</div></div>
+        <div class="acts"><a class="go" href="${url(r)}" target="_blank" rel="noopener">Walk</a>
+          <button class="chk" data-k="${key(r)}" aria-pressed="${s}">${s?"Seen ✓":"Seen"}</button></div>
+      </div>`;}).join("")}</div>`).join("");
+}
+
+document.getElementById("zones").addEventListener("click", e => { const b=e.target.closest("[data-z]"); if(!b) return; zone=b.dataset.z; try{localStorage.setItem("blink26zone",zone)}catch(_){} render(); });
+document.getElementById("types").addEventListener("click", e => { const b=e.target.closest("[data-t]"); if(!b) return; const t=b.dataset.t; types.has(t)?types.delete(t):types.add(t); if(!types.size) TYPES.forEach(x=>types.add(x[0])); render(); });
+document.getElementById("q").addEventListener("input", e => { q=e.target.value; render(); });
+document.getElementById("hideSeen").addEventListener("click", e => { hideSeen=!hideSeen; e.currentTarget.setAttribute("aria-pressed",hideSeen); render(); });
+document.getElementById("out").addEventListener("click", e => { const b=e.target.closest(".chk"); if(!b) return; const k=b.dataset.k; seen[k]?delete seen[k]:seen[k]=1; save(); render(); });
+try { const z=localStorage.getItem("blink26zone"); if (z && ZONES.some(x=>x[0]===z)) zone=z; } catch(e) {}
+tonight(); render();
+</script>
+
+</body>
+</html>
